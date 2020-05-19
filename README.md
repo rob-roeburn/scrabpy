@@ -4,7 +4,7 @@
 
 This script can be run to simulate the available tiles in the standard version of Scrabble.  Defaulting to 4 players and 7 tiles per tile rack. The script will run and prompt for letters to be used on the board, and refresh the tile rack with available tiles from the bag.
 
-The script supports skipping turns, reshuffling entire rack, and accurately simulate the probability of drawing tiles (12 times more likely to draw an E as a Q at the start of the game!)
+The script supports skipping turns, reshuffling entire rack, and accurately simulates the probability of drawing tiles (12 times more likely to draw an E as a Q at the start of the game!)
 
 ## Coming soon!
 
