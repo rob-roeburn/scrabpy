@@ -1,4 +1,4 @@
-# scrabpy
+# scrab.py
 
 ![alt text](https://github.com/rob-roeburn/scrabpy/blob/master/scrablogo.png "Scrabble!")
 
