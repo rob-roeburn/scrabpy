@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Scrabble</title>
+<meta charset="utf-8"/>
+</head>
+
+<body>
+<div class="rack">
+  <img id=tile1>
+  <img id=tile2>
+  <img id=tile3>
+  <img id=tile4>
+  <img id=tile5>
+  <img id=tile6>
+  <img id=tile7>
+</div>
+<div>
+<button onclick="updatePage()">
+<h2>Update</h2>
+</button>
+</div>
+
+<script>
+
+window.document.title="Player "+getParameterByName("p")+"'s Tiles"
+
+function updatePage() {
+  location.reload();
+}
+
+function getParameterByName(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, '\\$&');
+    var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, ' '));
+}
+
+async function fetchAsync () {
+  let response = await fetch('https://8n831lmsk9.execute-api.eu-west-1.amazonaws.com/main/scrabState/'+getParameterByName("g")+'/'+getParameterByName("p"));
+  let data = await response.json();
+  return data;
+}
+
+fetchAsync()
+    .then(
+      data => {
+        for (let i = 0; i < data.Items[0].tileRack.length; i++) {
+          document.getElementById("tile"+(i+1)).src = 'img/Scrabble_Tile_'+data.Items[0].tileRack.charAt(i)+'.jpg'
+        }
+      }
+    )
+    .catch(reason => console.log(reason.message))
+</script>
+
+</body>
+</html>
