@@ -1,5 +1,3 @@
-# scrab.py
-
 ![alt text](https://github.com/rob-roeburn/scrabpy/blob/master/scrablogo.png "Scrabble!")
 
 This script can be run to simulate the available tiles in the standard version of Scrabble.  Defaulting to 4 players and 7 tiles per tile rack. The script will run and prompt for letters to be used on the board, and refresh the tile rack with available tiles from the bag.
