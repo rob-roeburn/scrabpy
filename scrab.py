@@ -17,7 +17,7 @@ def getValidTile(tileRack, tileInt):
     tileBag[letter] = tileBag[letter]-1 # tile bag contained desired letter, so subtract that dict element from the bag
     tileRack[tileInt] = letter # set desired letter to tileInt element in rack
     return tileRack
-    
+
 def buildNewRack(): # return a dict of available tiles from the tile bag
     tileRack = {}
     for i in range(0, rackSize):
@@ -60,6 +60,11 @@ def countPlayerTiles(playerRacks): # helper function to monitor remaining player
         playerTiles += len(playerRacks[playerRack].values())
     return playerTiles
 
+
+def updateDynamo(gameId, playerId, playerRacks):
+    payload = {'gameId': str(gameId), 'playerId': str(i), 'tileRack': ''.join(str(e) for e in playerRacks[i-1].values())}
+    r = requests.post('https://8n831lmsk9.execute-api.eu-west-1.amazonaws.com/main/scrabUpdate/a/b', data=json.dumps(payload))
+
 playerRacks = buildRacks(numPlayers)
 playerTiles = countPlayerTiles(playerRacks)
 
@@ -69,7 +74,8 @@ while playerTiles > 0:
         playerTiles = countPlayerTiles(playerRacks)
         print("Round "+str(round)+", Player "+str(i)+"\'s turn. "+str(sum(tileBag.values()))+" tiles remaining in bag, "+str(playerTiles)+" total player tiles remaining.\n")
         print(*tileBag.values(), sep = " ")
-        print(*playerRacks[i-1].values(), sep = "")
+        print(*playerRacks[i-1].values(), sep = " ")
+        updateDynamo(333, i, playerRacks)
         letters = input("Which letters to use? ")
         if letters == reshuffle:
             playerRacks[i-1] = reshuffleRack(playerRacks[i-1])
@@ -81,4 +87,5 @@ while playerTiles > 0:
                         playerRacks[i-1] = updateRack(playerRacks[i-1], element)
                 else:
                     playerRacks[i-1] = reshuffleRack(playerRacks[i-1])
+        updateDynamo(333, i, playerRacks)
     round += 1
