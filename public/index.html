@@ -3,36 +3,133 @@
 <head>
 <title>Scrabble</title>
 <meta charset="utf-8"/>
+<style>
+  .rack {
+    display: inline-block;
+  }
+  .updateButton {
+    float: left;
+    padding: 20px;
+  }
+  .shuffleButton {
+    float: right;
+    padding: 20px;
+  }
+  h2 {
+    font-size: 40px;
+  }
+  ul {
+    list-style: none outside none;
+    margin:0;
+    padding: 0;
+  }
+  li {
+    float: left;
+  }
+</style>
 </head>
 
 <body>
+
 <div class="rack">
-  <img id=tile1>
-  <img id=tile2>
-  <img id=tile3>
-  <img id=tile4>
-  <img id=tile5>
-  <img id=tile6>
-  <img id=tile7>
-</div>
-<div>
-<button onclick="updatePage()">
-<h2>Update</h2>
-</button>
+  <div class="rack">
+    <ul id="tiles">
+      <li><img id=tile1 draggable='true' ondragstart='ds(event);' ondragover='dov(event);' ondrop='od(event);'></li>
+      <li><img id=tile2 draggable='true' ondragstart='ds(event);' ondragover='dov(event);' ondrop='od(event);'></li>
+      <li><img id=tile3 draggable='true' ondragstart='ds(event);' ondragover='dov(event);' ondrop='od(event);'></li>
+      <li><img id=tile4 draggable='true' ondragstart='ds(event);' ondragover='dov(event);' ondrop='od(event);'></li>
+      <li><img id=tile5 draggable='true' ondragstart='ds(event);' ondragover='dov(event);' ondrop='od(event);'></li>
+      <li><img id=tile6 draggable='true' ondragstart='ds(event);' ondragover='dov(event);' ondrop='od(event);'></li>
+      <li><img id=tile7 draggable='true' ondragstart='ds(event);' ondragover='dov(event);' ondrop='od(event);'></li>
+    </ul>
+  </div>
+  <div>
+    <div class="updateButton">
+      <button onclick="updatePage()">
+        <h2>Update</h2>
+      </button>
+    </div>
+    <div class="shuffleButton">
+      <button onclick="shuffleTiles()">
+        <h2>Shuffle</h2>
+      </button>
+    </div>
+  </div>
 </div>
 
 <script>
 
 window.document.title="Player "+getParameterByName("p")+"'s Tiles"
 
+function ds(event) {
+  event
+    .dataTransfer
+    .setData('text/plain', event.target.id);
+}
+
+function dov(event) {
+  event.preventDefault();
+}
+
+function od(event) {
+  event.preventDefault();
+  let id = event
+    .dataTransfer
+    .getData('text');
+  let movedTile = document.getElementById(id);
+  let targetTile = event.target;
+  reorderTiles(movedTile.id, targetTile.id)
+}
+
 function updatePage() {
   location.reload();
+}
+
+function reorderTiles(movedTile, targetTile) {
+  let tiles = document.querySelector('#tiles');
+  let tempTiles = [];
+  let tileRegex = new RegExp('tile[1-7]');
+  for (let i = 0; i < tiles.children.length; i += 1) {
+    if (tiles.children[i].firstChild.id == movedTile) {
+      tempTiles.push(tiles.children[targetTile.slice(-1)-1]);
+    } else if (tiles.children[i].firstChild.id == targetTile) {
+      tempTiles.push(tiles.children[movedTile.slice(-1)-1]);
+    } else {
+      tempTiles.push(tiles.children[i]);
+    }
+  }
+  while (tiles.children.length > 0) {
+    tiles.removeChild(tiles.children[0]);
+  }
+  for (let i = 0; i < tempTiles.length; i += 1) {
+    tempTiles[i].innerHTML = tempTiles[i].innerHTML.replace(tileRegex, "tile"+(i+1))
+    tiles.appendChild(tempTiles[i]);
+  }
+}
+
+function shuffleTiles() {
+  let tiles = document.querySelector('#tiles');
+  let tempTiles = [];
+  let tileRegex = new RegExp('tile[1-7]');
+  for (let i = 0; i < tiles.children.length; i += 1) {
+    tempTiles.push(tiles.children[i]);
+  }
+  tempTiles.sort(function(a, b) {
+    return -1 + Math.random() * 3;
+  });
+  while (tiles.children.length > 0) {
+    tiles.removeChild(tiles.children[0]);
+  }
+  for (let i = 0; i < tempTiles.length; i += 1) {
+    tempTiles[i].innerHTML = tempTiles[i].innerHTML.replace(tileRegex, "tile"+(i+1))
+    tiles.appendChild(tempTiles[i]);
+  }
 }
 
 function getParameterByName(name, url) {
     if (!url) url = window.location.href;
     name = name.replace(/[\[\]]/g, '\\$&');
-    var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+    let regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
         results = regex.exec(url);
     if (!results) return null;
     if (!results[2]) return '';

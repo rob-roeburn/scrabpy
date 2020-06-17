@@ -74,7 +74,7 @@ while playerTiles > 0:
         playerTiles = countPlayerTiles(playerRacks)
         print("Round "+str(round)+", Player "+str(i)+"\'s turn. "+str(sum(tileBag.values()))+" tiles remaining in bag, "+str(playerTiles)+" total player tiles remaining.\n")
         print(*tileBag.values(), sep = " ")
-        print(*playerRacks[i-1].values(), sep = " ")
+        print(*playerRacks[i-1].values(), sep = "")
         updateDynamo(333, i, playerRacks)
         letters = input("Which letters to use? ")
         if letters == reshuffle:
