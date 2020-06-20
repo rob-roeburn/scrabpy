@@ -50,6 +50,7 @@
         <h2>Update</h2>
       </button>
     </div>
+    <div id='funcLabel'>Function</div>
     <div class="shuffleButton">
       <button onclick="shuffleTiles()">
         <h2>Shuffle</h2>
@@ -63,16 +64,19 @@
 window.document.title="Scrabble Tile View"
 
 function ds(event) {
+  document.querySelector('#funcLabel').innerHTML='Firing drag start'
   event
     .dataTransfer
     .setData('text/plain', event.target.id);
 }
 
 function dov(event) {
+  document.querySelector('#funcLabel').innerHTML='Firing dragover'
   event.preventDefault();
 }
 
 function od(event) {
+  document.querySelector('#funcLabel').innerHTML='Firing ondrop'
   event.preventDefault();
   let id = event
     .dataTransfer
