@@ -117,12 +117,15 @@ function reorderTiles(sourceTile, targetTile) {
       calcNumbers[i+1]=i;                                  //  apply negative offset (i) to shift tiles left
     }
   }
+  tileMonitor='';
   for (let i = 0; i < tiles.children.length; i += 1) {
+    tileMonitor+=tiles.children[calcNumbers[i+1]-1].firstChild.id.slice(-1);
     tempTiles.push(tiles.children[calcNumbers[i+1]-1]);
   }
   while (tiles.children.length > 0) {
     tiles.removeChild(tiles.children[0]);
   }
+  document.querySelector('#funcLabel').innerHTML=tileMonitor
   for (let i = 0; i < tempTiles.length; i += 1) {
     tempTiles[i].innerHTML = tempTiles[i].innerHTML.replace(tileRegex, "tile"+(i+1))
     tiles.appendChild(tempTiles[i]);
