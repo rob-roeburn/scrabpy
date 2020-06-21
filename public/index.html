@@ -77,6 +77,8 @@ function dov(event) {
 
 function od(event) {
   document.querySelector('#funcLabel').innerHTML='Firing ondrop'
+  event.stopPropagation();
+  event.stopImmediatePropagation();
   event.preventDefault();
   let id = event
     .dataTransfer
