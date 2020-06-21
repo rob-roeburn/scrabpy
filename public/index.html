@@ -109,8 +109,7 @@ function tileDrop(e) {
     e.stopImmediatePropagation();
     e.preventDefault();
     if (tileDragSrcEl != this) {
-      e.preventDefault();
-      let id = event
+      let id = e
         .dataTransfer
         .getData('text');
       let sourceTile = document.getElementById(id);
@@ -226,20 +225,10 @@ var cols = document.querySelectorAll('#columns .column');
 let dragSrcEl = null;
 
 function handleDragStart(e) {
-//  let dt = e.dataTransfer;
-//  dt.effectAllowed = 'move';
-//  dt.setData('text', dragSrcEl.innerHTML);
-
   dragSrcEl = e.target;
   e
     .dataTransfer
     .setData('text', dragSrcEl.innerHTML);
-
-//  event
-//    .dataTransfer
-//    .setData('text/plain', event.target.id);
-
-
 }
 
 function handleDragOver(e) {
