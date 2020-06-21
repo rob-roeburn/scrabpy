@@ -178,9 +178,9 @@ fetchAsync()
 function addHandlers() {
   let tileImages = document.querySelectorAll('#rack .tile');
   [].forEach.call(tileImages, function (tile) {
-    tile.addEventListener('dragstart', ds, false);
-    tile.addEventListener('dragover', dov, false);
-    tile.addEventListener('drop', od, false);
+    tile.addEventListener('ondragstart', ds, false);
+    tile.addEventListener('ondragover', dov, false);
+    tile.addEventListener('ondrop', od, false);
   });
 }
 
