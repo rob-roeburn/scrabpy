@@ -5,7 +5,10 @@
 <meta charset="utf-8"/>
 <script src="DragDropTouch.js"></script>
 <style>
-  .rack {
+  #maindiv {
+    display: inline-block;
+  }
+  #rack {
     display: inline-block;
   }
   .updateButton {
@@ -44,16 +47,16 @@
 
 <body>
 
-<div class="rack">
-  <div class="rack">
+<div id="maindiv">
+  <div id="rack">
     <ul id="tiles">
-      <li><img id=tile1 draggable='true' ondragstart='ds(event);' ondragover='dov(event);' ondrop='od(event);'></li>
-      <li><img id=tile2 draggable='true' ondragstart='ds(event);' ondragover='dov(event);' ondrop='od(event);'></li>
-      <li><img id=tile3 draggable='true' ondragstart='ds(event);' ondragover='dov(event);' ondrop='od(event);'></li>
-      <li><img id=tile4 draggable='true' ondragstart='ds(event);' ondragover='dov(event);' ondrop='od(event);'></li>
-      <li><img id=tile5 draggable='true' ondragstart='ds(event);' ondragover='dov(event);' ondrop='od(event);'></li>
-      <li><img id=tile6 draggable='true' ondragstart='ds(event);' ondragover='dov(event);' ondrop='od(event);'></li>
-      <li><img id=tile7 draggable='true' ondragstart='ds(event);' ondragover='dov(event);' ondrop='od(event);'></li>
+      <li><img id=tile1 class='tile' draggable='true'></li>
+      <li><img id=tile2 class='tile' draggable='true'></li>
+      <li><img id=tile3 class='tile' draggable='true'></li>
+      <li><img id=tile4 class='tile' draggable='true'></li>
+      <li><img id=tile5 class='tile' draggable='true'></li>
+      <li><img id=tile6 class='tile' draggable='true'></li>
+      <li><img id=tile7 class='tile' draggable='true'></li>
     </ul>
   </div>
   <div>
@@ -82,29 +85,44 @@
 
 window.document.title="Scrabble Tile View"
 
-function ds(event) {
+let tileDragSrcEl = null;
+
+function tileDragStart(e) {
   document.querySelector('#funcLabel').innerHTML='Firing drag start'
-  event
+  tileDragSrcEl = e.target;
+  e
     .dataTransfer
-    .setData('text/plain', event.target.id);
+    .setData('text/plain', e.target.id);
 }
 
-function dov(event) {
+function tileDragOver(e) {
   document.querySelector('#funcLabel').innerHTML='Firing dragover'
-  event.preventDefault();
+  if (tileDragSrcEl) {
+    e.preventDefault();
+  }
 }
 
-function od(event) {
+function tileDrop(e) {
   document.querySelector('#funcLabel').innerHTML='Firing ondrop'
-  event.stopPropagation();
-  event.stopImmediatePropagation();
-  event.preventDefault();
-  let id = event
-    .dataTransfer
-    .getData('text');
-  let sourceTile = document.getElementById(id);
-  let targetTile = event.target;
-  reorderTiles(sourceTile.id, targetTile.id)
+  if (tileDragSrcEl) {
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    e.preventDefault();
+    if (tileDragSrcEl != this) {
+      e.preventDefault();
+      let id = event
+        .dataTransfer
+        .getData('text');
+      let sourceTile = document.getElementById(id);
+      let targetTile = e.target;
+      reorderTiles(sourceTile.id, targetTile.id)
+    }
+  }
+}
+
+function tileDragEnd(e) {
+  document.querySelector('#funcLabel').innerHTML='Firing drag end'
+  tileDragSrcEl = null;
 }
 
 function updatePage() {
@@ -145,9 +163,10 @@ function reorderTiles(sourceTile, targetTile) {
     tiles.removeChild(tiles.children[0]);
   }
   for (let i = 0; i < tempTiles.length; i += 1) {
-    tempTiles[i].innerHTML = tempTiles[i].innerHTML.replace(tileRegex, "tile"+(i+1))
+    tempTiles[i].innerHTML = tempTiles[i].innerHTML.replace(tileRegex, "tile"+(i+1));
     tiles.appendChild(tempTiles[i]);
   }
+  addHandlers();
 }
 
 function shuffleTiles() {
@@ -164,9 +183,10 @@ function shuffleTiles() {
     tiles.removeChild(tiles.children[0]);
   }
   for (let i = 0; i < tempTiles.length; i += 1) {
-    tempTiles[i].innerHTML = tempTiles[i].innerHTML.replace(tileRegex, "tile"+(i+1))
+    tempTiles[i].innerHTML = tempTiles[i].innerHTML.replace(tileRegex, "tile"+(i+1));
     tiles.appendChild(tempTiles[i]);
   }
+  addHandlers()
 }
 
 function getParameterByName(name, url) {
@@ -195,73 +215,67 @@ fetchAsync()
     )
     .catch(reason => console.log(reason.message))
 
-// hook up event handlers
 var cols = document.querySelectorAll('#columns .column');
 [].forEach.call(cols, function (col) {
     col.addEventListener('dragstart', handleDragStart, false);
-    col.addEventListener('dragenter', handleDragEnter, false)
     col.addEventListener('dragover', handleDragOver, false);
-    col.addEventListener('dragleave', handleDragLeave, false);
     col.addEventListener('drop', handleDrop, false);
     col.addEventListener('dragend', handleDragEnd, false);
 });
 
+let dragSrcEl = null;
 
-var dragSrcEl = null;
 function handleDragStart(e) {
-    if (e.target.className.indexOf('column') > -1) {
-        dragSrcEl = e.target;
-        dragSrcEl.style.opacity = '0.4';
-        var dt = e.dataTransfer;
-        dt.effectAllowed = 'move';
-        dt.setData('text', dragSrcEl.innerHTML);
+//  let dt = e.dataTransfer;
+//  dt.effectAllowed = 'move';
+//  dt.setData('text', dragSrcEl.innerHTML);
 
-        // customize drag image for one of the panels
-        if (dt.setDragImage instanceof Function && e.target.innerHTML.indexOf('X') > -1) {
-            var img = new Image();
-            img.src = 'dragimage.jpg';
-            dt.setDragImage(img, img.width / 2, img.height / 2);
-        }
-    }
+  dragSrcEl = e.target;
+  e
+    .dataTransfer
+    .setData('text', dragSrcEl.innerHTML);
+
+//  event
+//    .dataTransfer
+//    .setData('text/plain', event.target.id);
+
+
 }
+
 function handleDragOver(e) {
-    if (dragSrcEl) {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'move';
-    }
+  if (dragSrcEl) {
+    e.preventDefault();
+  }
 }
-function handleDragEnter(e) {
-    if (dragSrcEl) {
-        e.target.classList.add('over');
-    }
-}
-function handleDragLeave(e) {
-    if (dragSrcEl) {
-        e.target.classList.remove('over');
-    }
-}
-function handleDragEnd(e) {
-    dragSrcEl = null;
-    [].forEach.call(cols, function (col) {
-        col.style.opacity = '';
-        col.classList.remove('over');
-    });
-}
+
 function handleDrop(e) {
-    if (dragSrcEl) {
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-        e.preventDefault();
-        if (dragSrcEl != this) {
-            dragSrcEl.innerHTML = e.target.innerHTML;
-            this.innerHTML = e.dataTransfer.getData('text');
-        }
+  if (dragSrcEl) {
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    e.preventDefault();
+    if (dragSrcEl != this) {
+      dragSrcEl.innerHTML = e.target.innerHTML;
+      this.innerHTML = e.dataTransfer.getData('text');
     }
+  }
 }
 
+function handleDragEnd(e) {
+  dragSrcEl = null;
+}
 
+function addHandlers() {
+  let tileImages = document.querySelectorAll('#rack .tile');
+  [].forEach.call(tileImages, function (tile) {
+    tile.addEventListener('dragstart', tileDragStart, false);
+    tile.addEventListener('dragover', tileDragOver, false);
+    tile.addEventListener('drop', tileDrop, false);
+    tile.addEventListener('dragend', tileDragEnd, false);
+  });
+}
+
+addHandlers();
 
 </script>
-
 </body>
 </html>
