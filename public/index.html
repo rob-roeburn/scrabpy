@@ -114,13 +114,13 @@ function tileDrop(e) {
         .getData('text');
       let sourceTile = document.getElementById(id);
       let targetTile = e.target;
+      document.querySelector('#funcLabel').innerHTML='Firing reorder tiles'
       reorderTiles(sourceTile.id, targetTile.id)
     }
   }
 }
 
 function tileDragEnd(e) {
-  document.querySelector('#funcLabel').innerHTML='Firing drag end'
   tileDragSrcEl = null;
 }
 
@@ -129,6 +129,7 @@ function updatePage() {
 }
 
 function reorderTiles(sourceTile, targetTile) {
+  document.querySelector('#funcLabel').innerHTML='reorder tiles 0'
   let tiles = document.querySelector('#tiles');
   let tempTiles = [];
   let tileRegex = new RegExp('tile[1-7]');
@@ -136,6 +137,7 @@ function reorderTiles(sourceTile, targetTile) {
   sourceTilePassed=false
   targetTilePassed=false
   offset=0;
+  document.querySelector('#funcLabel').innerHTML='reorder tiles 10'
   for (let i = 0; i < Object.keys(calcNumbers).length; i += 1) {
     if ((i+1) == parseInt(sourceTile.slice(-1))) {         // CLAUSE 1: Source tile
       sourceTilePassed=true                                // Set bool to mark source tile passed
@@ -155,6 +157,7 @@ function reorderTiles(sourceTile, targetTile) {
       calcNumbers[i+1]=i;                                  //  apply negative offset (i) to shift tiles left
     }
   }
+  document.querySelector('#funcLabel').innerHTML='reorder tiles 30'
   for (let i = 0; i < tiles.children.length; i += 1) {
     tempTiles.push(tiles.children[calcNumbers[i+1]-1]);
   }
@@ -165,6 +168,7 @@ function reorderTiles(sourceTile, targetTile) {
     tempTiles[i].innerHTML = tempTiles[i].innerHTML.replace(tileRegex, "tile"+(i+1));
     tiles.appendChild(tempTiles[i]);
   }
+  document.querySelector('#funcLabel').innerHTML='reorder tiles 40'
   addHandlers();
 }
 
@@ -226,9 +230,6 @@ let dragSrcEl = null;
 
 function handleDragStart(e) {
   dragSrcEl = e.target;
-  e
-    .dataTransfer
-    .setData('text', dragSrcEl.innerHTML);
 }
 
 function handleDragOver(e) {
@@ -242,10 +243,7 @@ function handleDrop(e) {
     e.stopPropagation();
     e.stopImmediatePropagation();
     e.preventDefault();
-    if (dragSrcEl != this) {
-      dragSrcEl.innerHTML = e.target.innerHTML;
-      this.innerHTML = e.dataTransfer.getData('text');
-    }
+    dragSrcEl.innerHTML = e.target.innerHTML;
   }
 }
 
