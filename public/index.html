@@ -4,7 +4,10 @@
 <title>Scrabble</title>
 <meta charset="utf-8"/>
 <style>
-  .rack {
+  #maindiv {
+    display: inline-block;
+  }
+  #rack {
     display: inline-block;
   }
   .updateButton {
@@ -26,34 +29,21 @@
   li {
     float: left;
   }
-.column {
-    height: 150px;
-    width: 150px;
-    display: inline-block;
-    border: 2px solid #666666;
-    background-color: #ccc;
-    margin-right: 5px;
-    border-radius: 10px;
-    box-shadow: inset 0 0 3px #000;
-    text-align: center;
-    cursor: move;
-}
-
 </style>
 </head>
 
 <body>
 
-<div class="rack">
-  <div class="rack">
+<div id="maindiv">
+  <div id="rack">
     <ul id="tiles">
-      <li><img id=tile1 draggable='true' ondragstart='ds(event);' ondragover='dov(event);' ondrop='od(event);'></li>
-      <li><img id=tile2 draggable='true' ondragstart='ds(event);' ondragover='dov(event);' ondrop='od(event);'></li>
-      <li><img id=tile3 draggable='true' ondragstart='ds(event);' ondragover='dov(event);' ondrop='od(event);'></li>
-      <li><img id=tile4 draggable='true' ondragstart='ds(event);' ondragover='dov(event);' ondrop='od(event);'></li>
-      <li><img id=tile5 draggable='true' ondragstart='ds(event);' ondragover='dov(event);' ondrop='od(event);'></li>
-      <li><img id=tile6 draggable='true' ondragstart='ds(event);' ondragover='dov(event);' ondrop='od(event);'></li>
-      <li><img id=tile7 draggable='true' ondragstart='ds(event);' ondragover='dov(event);' ondrop='od(event);'></li>
+      <li><img id=tile1 class='tile' draggable='true'></li>
+      <li><img id=tile2 class='tile' draggable='true'></li>
+      <li><img id=tile3 class='tile' draggable='true'></li>
+      <li><img id=tile4 class='tile' draggable='true'></li>
+      <li><img id=tile5 class='tile' draggable='true'></li>
+      <li><img id=tile6 class='tile' draggable='true'></li>
+      <li><img id=tile7 class='tile' draggable='true'></li>
     </ul>
   </div>
   <div>
@@ -62,7 +52,6 @@
         <h2>Update</h2>
       </button>
     </div>
-    <div id='funcLabel'>Function</div>
     <div class="shuffleButton">
       <button onclick="shuffleTiles()">
         <h2>Shuffle</h2>
@@ -70,30 +59,23 @@
     </div>
   </div>
 </div>
-        <div id="columns">
-            <div class="column" draggable="true"><header>A</header></div>
-            <div class="column" draggable="true"><header>B</header></div>
-            <div class="column" draggable="true"><header>C</header></div>
-            <div class="column" draggable="true"><header>X</header></div>
-        </div>
 <script>
 
 window.document.title="Scrabble Tile View"
 
 function ds(event) {
-  document.querySelector('#funcLabel').innerHTML='Firing drag start'
   event
     .dataTransfer
     .setData('text/plain', event.target.id);
 }
 
 function dov(event) {
-  document.querySelector('#funcLabel').innerHTML='Firing dragover'
   event.preventDefault();
 }
 
 function od(event) {
-  document.querySelector('#funcLabel').innerHTML='Firing ondrop'
+  event.preventDefault();
+  event.stopImmediatePropagation();
   event.preventDefault();
   let id = event
     .dataTransfer
@@ -134,19 +116,17 @@ function reorderTiles(sourceTile, targetTile) {
       calcNumbers[i+1]=i;                                  //  apply negative offset (i) to shift tiles left
     }
   }
-  tileMonitor='';
   for (let i = 0; i < tiles.children.length; i += 1) {
-    tileMonitor+=tiles.children[calcNumbers[i+1]-1].firstChild.id.slice(-1);
     tempTiles.push(tiles.children[calcNumbers[i+1]-1]);
   }
   while (tiles.children.length > 0) {
     tiles.removeChild(tiles.children[0]);
   }
-  document.querySelector('#funcLabel').innerHTML=tileMonitor
   for (let i = 0; i < tempTiles.length; i += 1) {
     tempTiles[i].innerHTML = tempTiles[i].innerHTML.replace(tileRegex, "tile"+(i+1))
     tiles.appendChild(tempTiles[i]);
   }
+  addHandlers();
 }
 
 function shuffleTiles() {
@@ -166,6 +146,7 @@ function shuffleTiles() {
     tempTiles[i].innerHTML = tempTiles[i].innerHTML.replace(tileRegex, "tile"+(i+1))
     tiles.appendChild(tempTiles[i]);
   }
+  addHandlers();
 }
 
 function getParameterByName(name, url) {
@@ -194,69 +175,16 @@ fetchAsync()
     )
     .catch(reason => console.log(reason.message))
 
-    // hook up event handlers
-    var cols = document.querySelectorAll('#columns .column');
-    [].forEach.call(cols, function (col) {
-        col.addEventListener('dragstart', handleDragStart, false);
-        col.addEventListener('dragenter', handleDragEnter, false)
-        col.addEventListener('dragover', handleDragOver, false);
-        col.addEventListener('dragleave', handleDragLeave, false);
-        col.addEventListener('drop', handleDrop, false);
-        col.addEventListener('dragend', handleDragEnd, false);
-    });
+function addHandlers() {
+  let tileImages = document.querySelectorAll('#rack .tile');
+  [].forEach.call(tileImages, function (tile) {
+    tile.addEventListener('dragstart', ds, false);
+    tile.addEventListener('dragover', dov, false);
+    tile.addEventListener('drop', od, false);
+  });
+}
 
-    var dragSrcEl = null;
-    function handleDragStart(e) {
-        if (e.target.className.indexOf('column') > -1) {
-            dragSrcEl = e.target;
-            dragSrcEl.style.opacity = '0.4';
-            var dt = e.dataTransfer;
-            dt.effectAllowed = 'move';
-            dt.setData('text', dragSrcEl.innerHTML);
-
-            // customize drag image for one of the panels
-            if (dt.setDragImage instanceof Function && e.target.innerHTML.indexOf('X') > -1) {
-                var img = new Image();
-                img.src = 'dragimage.jpg';
-                dt.setDragImage(img, img.width / 2, img.height / 2);
-            }
-        }
-    }
-    function handleDragOver(e) {
-        if (dragSrcEl) {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
-        }
-    }
-    function handleDragEnter(e) {
-        if (dragSrcEl) {
-            e.target.classList.add('over');
-        }
-    }
-    function handleDragLeave(e) {
-        if (dragSrcEl) {
-            e.target.classList.remove('over');
-        }
-    }
-    function handleDragEnd(e) {
-        dragSrcEl = null;
-        [].forEach.call(cols, function (col) {
-            col.style.opacity = '';
-            col.classList.remove('over');
-        });
-    }
-    function handleDrop(e) {
-        if (dragSrcEl) {
-            e.stopPropagation();
-            e.stopImmediatePropagation();
-            e.preventDefault();
-            if (dragSrcEl != this) {
-                dragSrcEl.innerHTML = e.target.innerHTML;
-                this.innerHTML = e.dataTransfer.getData('text');
-            }
-        }
-    }
-
+addHandlers();
 
 </script>
 
