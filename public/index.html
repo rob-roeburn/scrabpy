@@ -3,11 +3,9 @@
 <head>
 <title>Scrabble</title>
 <meta charset="utf-8"/>
+<script src="DragDropTouch.js"></script>
 <style>
-  #maindiv {
-    display: inline-block;
-  }
-  #rack {
+  .rack {
     display: inline-block;
   }
   .updateButton {
@@ -34,16 +32,16 @@
 
 <body>
 
-<div id="maindiv">
-  <div id="rack">
+<div class="rack">
+  <div class="rack">
     <ul id="tiles">
-      <li><img id=tile1 class='tile' draggable='true'></li>
-      <li><img id=tile2 class='tile' draggable='true'></li>
-      <li><img id=tile3 class='tile' draggable='true'></li>
-      <li><img id=tile4 class='tile' draggable='true'></li>
-      <li><img id=tile5 class='tile' draggable='true'></li>
-      <li><img id=tile6 class='tile' draggable='true'></li>
-      <li><img id=tile7 class='tile' draggable='true'></li>
+      <li><img id=tile1 draggable='true' ondragstart='ds(event);' ondragover='dov(event);' ondrop='od(event);'></li>
+      <li><img id=tile2 draggable='true' ondragstart='ds(event);' ondragover='dov(event);' ondrop='od(event);'></li>
+      <li><img id=tile3 draggable='true' ondragstart='ds(event);' ondragover='dov(event);' ondrop='od(event);'></li>
+      <li><img id=tile4 draggable='true' ondragstart='ds(event);' ondragover='dov(event);' ondrop='od(event);'></li>
+      <li><img id=tile5 draggable='true' ondragstart='ds(event);' ondragover='dov(event);' ondrop='od(event);'></li>
+      <li><img id=tile6 draggable='true' ondragstart='ds(event);' ondragover='dov(event);' ondrop='od(event);'></li>
+      <li><img id=tile7 draggable='true' ondragstart='ds(event);' ondragover='dov(event);' ondrop='od(event);'></li>
     </ul>
   </div>
   <div>
@@ -52,6 +50,7 @@
         <h2>Update</h2>
       </button>
     </div>
+    <div id='funcLabel'>Function</div>
     <div class="shuffleButton">
       <button onclick="shuffleTiles()">
         <h2>Shuffle</h2>
@@ -59,23 +58,25 @@
     </div>
   </div>
 </div>
+
 <script>
 
 window.document.title="Scrabble Tile View"
 
 function ds(event) {
+  document.querySelector('#funcLabel').innerHTML='Firing drag start'
   event
     .dataTransfer
     .setData('text/plain', event.target.id);
 }
 
 function dov(event) {
+  document.querySelector('#funcLabel').innerHTML='Firing dragover'
   event.preventDefault();
 }
 
 function od(event) {
-  event.preventDefault();
-  event.stopImmediatePropagation();
+  document.querySelector('#funcLabel').innerHTML='Firing ondrop'
   event.preventDefault();
   let id = event
     .dataTransfer
@@ -126,7 +127,6 @@ function reorderTiles(sourceTile, targetTile) {
     tempTiles[i].innerHTML = tempTiles[i].innerHTML.replace(tileRegex, "tile"+(i+1))
     tiles.appendChild(tempTiles[i]);
   }
-  addHandlers();
 }
 
 function shuffleTiles() {
@@ -146,7 +146,6 @@ function shuffleTiles() {
     tempTiles[i].innerHTML = tempTiles[i].innerHTML.replace(tileRegex, "tile"+(i+1))
     tiles.appendChild(tempTiles[i]);
   }
-  addHandlers();
 }
 
 function getParameterByName(name, url) {
@@ -174,18 +173,6 @@ fetchAsync()
       }
     )
     .catch(reason => console.log(reason.message))
-
-function addHandlers() {
-  let tileImages = document.querySelectorAll('#rack .tile');
-  [].forEach.call(tileImages, function (tile) {
-    tile.addEventListener('ondragstart', ds, false);
-    tile.addEventListener('ondragover', dov, false);
-    tile.addEventListener('ondrop', od, false);
-  });
-}
-
-addHandlers();
-
 </script>
 
 </body>
