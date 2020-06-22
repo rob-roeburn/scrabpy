@@ -85,49 +85,6 @@
 
 window.document.title="Scrabble Tile View"
 
-let tileDragSrcEl = null;
-
-function tileDragStart(e) {
-  document.querySelector('#funcLabel').innerHTML='Firing drag start'
-  tileDragSrcEl = e.target;
-  e
-    .dataTransfer
-    .setData('text/plain', e.target.id);
-}
-
-function tileDragOver(e) {
-  document.querySelector('#funcLabel').innerHTML='Firing dragover'
-  if (tileDragSrcEl) {
-    e.preventDefault();
-  }
-}
-
-function tileDrop(e) {
-  document.querySelector('#funcLabel').innerHTML='Firing ondrop'
-  if (tileDragSrcEl) {
-    e.stopPropagation();
-    e.stopImmediatePropagation();
-    e.preventDefault();
-    if (tileDragSrcEl != this) {
-      let id = e
-        .dataTransfer
-        .getData('text');
-      let sourceTile = document.getElementById(id);
-      let targetTile = e.target;
-      document.querySelector('#funcLabel').innerHTML='Firing reorder tiles'
-      reorderTiles(sourceTile.id, targetTile.id)
-    }
-  }
-}
-
-function tileDragEnd(e) {
-  tileDragSrcEl = null;
-}
-
-function updatePage() {
-  location.reload();
-}
-
 function reorderTiles(sourceTile, targetTile) {
   document.querySelector('#funcLabel').innerHTML='reorder tiles 0'
   let tiles = document.querySelector('#tiles');
@@ -192,6 +149,50 @@ function shuffleTiles() {
   addHandlers()
 }
 
+let tileDragSrcEl = null;
+
+function tileDragStart(e) {
+  document.querySelector('#funcLabel').innerHTML='Firing drag start'
+  tileDragSrcEl = e.target;
+  e
+    .dataTransfer
+    .setData('text/plain', e.target.id);
+}
+
+function tileDragOver(e) {
+  document.querySelector('#funcLabel').innerHTML='Firing dragover'
+  if (tileDragSrcEl) {
+    e.preventDefault();
+  }
+}
+
+function tileDrop(e) {
+  document.querySelector('#funcLabel').innerHTML='Firing ondrop'
+  if (tileDragSrcEl) {
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    e.preventDefault();
+    if (tileDragSrcEl != this) {
+      let id = e
+        .dataTransfer
+        .getData('text');
+      let sourceTile = document.getElementById(id);
+      let targetTile = e.target;
+      document.querySelector('#funcLabel').innerHTML='Firing reorder tiles'
+      reorderTiles(sourceTile.id, targetTile.id)
+    }
+  }
+}
+
+function tileDragEnd(e) {
+  tileDragSrcEl = null;
+}
+
+function updatePage() {
+  location.reload();
+}
+
+
 function getParameterByName(name, url) {
     if (!url) url = window.location.href;
     name = name.replace(/[\[\]]/g, '\\$&');
@@ -230,6 +231,9 @@ let dragSrcEl = null;
 
 function handleDragStart(e) {
   dragSrcEl = e.target;
+  e
+    .dataTransfer
+    .setData('text', dragSrcEl.innerHTML);
 }
 
 function handleDragOver(e) {
@@ -244,6 +248,10 @@ function handleDrop(e) {
     e.stopImmediatePropagation();
     e.preventDefault();
     dragSrcEl.innerHTML = e.target.innerHTML;
+    if (dragSrcEl != this) {
+      dragSrcEl.innerHTML = e.target.innerHTML;
+      this.innerHTML = e.dataTransfer.getData('text');
+    }
   }
 }
 
