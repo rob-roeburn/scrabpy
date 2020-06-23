@@ -15,6 +15,16 @@
     float: left;
     padding: 20px;
   }
+  .switchButton {
+    padding: 20px;
+    position: fixed;
+    top: 50%;
+    left: 38%;
+  }
+  .shuffleButton {
+    float: right;
+    padding: 20px;
+  }
   .shuffleButton {
     float: right;
     padding: 20px;
@@ -30,22 +40,10 @@
   li {
     float: left;
   }
-  .column {
-    height: 150px;
-    width: 150px;
-    display: inline-block;
-    border: 2px solid #666666;
-    background-color: #ccc;
-    margin-right: 5px;
-    border-radius: 10px;
-    box-shadow: inset 0 0 3px #000;
-    text-align: center;
-    cursor: move;
-  }
 </style>
 </head>
 
-<body>
+<body> <center>
 
 <div id="maindiv">
   <div id="rack">
@@ -65,56 +63,77 @@
         <h2>Update</h2>
       </button>
     </div>
-    <div id='funcLabel'>Function</div>
+    <div class="switchButton">
+      <button onclick="toggleSwitch(this)">
+        <h1>Tile Drop: Push</h1>
+      </button>
+    </div>
     <div class="shuffleButton">
       <button onclick="shuffleTiles()">
         <h2>Shuffle</h2>
       </button>
     </div>
   </div>
-<div id="columns">
-    <div class="column" draggable="true"><header>A</header></div>
-    <div class="column" draggable="true"><header>B</header></div>
-    <div class="column" draggable="true"><header>C</header></div>
-    <div class="column" draggable="true"><header>X</header></div>
-</div>
-
 </div>
 
 <script>
 
+let switchBehaviour=true
+
+function toggleSwitch(item){
+  if (switchBehaviour) {
+    item.innerHTML="<h1>Tile Drop: Swap</h1>";
+    switchBehaviour=false;
+  } else {
+    item.innerHTML="<h1>Tile Drop: Push</h1>";
+    switchBehaviour=true;
+  }
+}
+
 window.document.title="Scrabble Tile View"
 
 function reorderTiles(sourceTile, targetTile) {
-  document.querySelector('#funcLabel').innerHTML='reorder tiles 0'
   let tiles = document.querySelector('#tiles');
   let tempTiles = [];
   let tileRegex = new RegExp('tile[1-7]');
   let calcNumbers={'1':1,'2':2,'3':3, '4':4, '5':5, '6':6, '7':7}
+
   sourceTilePassed=false
   targetTilePassed=false
   offset=0;
-  document.querySelector('#funcLabel').innerHTML='reorder tiles 10'
-  for (let i = 0; i < Object.keys(calcNumbers).length; i += 1) {
-    if ((i+1) == parseInt(sourceTile.slice(-1))) {         // CLAUSE 1: Source tile
-      sourceTilePassed=true                                // Set bool to mark source tile passed
-      if (!targetTilePassed) {                             // In source tile clause and target tile not passed:
-        calcNumbers[i+1]=i+2;                              //  apply positive offset (i+2) to shift tiles right
-      } else {                                             // In source tile clause and target tile passed:
-        calcNumbers[i+1]=i;                                //  apply negative offset (i) to shift tiles left
+
+  if (switchBehaviour) {
+    for (let i = 0; i < Object.keys(calcNumbers).length; i += 1) {
+      if ((i+1) == parseInt(sourceTile.slice(-1))) {         // CLAUSE 1: Source tile
+        sourceTilePassed=true                                // Set bool to mark source tile passed
+        if (!targetTilePassed) {                             // In source tile clause and target tile not passed:
+          calcNumbers[i+1]=i+2;                              //  apply positive offset (i+2) to shift tiles right
+        } else {                                             // In source tile clause and target tile passed:
+          calcNumbers[i+1]=i;                                //  apply negative offset (i) to shift tiles left
+        }
+      } else if ((i+1) == parseInt(targetTile.slice(-1))) {  // CLAUSE 2: Target tile
+        targetTilePassed=true                                // Set bool to mark target tile passed
+        calcNumbers[i+1]=(parseInt(sourceTile.slice(-1)));   // Target tile is always source tile integer
+      } else if (sourceTilePassed==targetTilePassed) {       // CLAUSE 3: Neither source nor target passed OR both have passed:
+          calcNumbers[i+1]=i+1;                              //  pass tile through unchanged
+      } else if (sourceTilePassed) {                         // CLAUSE 4: Source tile passed but target not:
+        calcNumbers[i+1]=i+2;                                //  apply positive offset (i+2) to shift tiles right
+      } else if (targetTilePassed) {                         // CLAUSE 5: target tile passed but source not
+        calcNumbers[i+1]=i;                                  //  apply negative offset (i) to shift tiles left
       }
-    } else if ((i+1) == parseInt(targetTile.slice(-1))) {  // CLAUSE 2: Target tile
-      targetTilePassed=true                                // Set bool to mark target tile passed
-      calcNumbers[i+1]=(parseInt(sourceTile.slice(-1)));   // Target tile is always source tile integer
-    } else if (sourceTilePassed==targetTilePassed) {       // CLAUSE 3: Neither source nor target passed OR both have passed:
-        calcNumbers[i+1]=i+1;                              //  pass tile through unchanged
-    } else if (sourceTilePassed) {                         // CLAUSE 4: Source tile passed but target not:
-      calcNumbers[i+1]=i+2;                                //  apply positive offset (i+2) to shift tiles right
-    } else if (targetTilePassed) {                         // CLAUSE 5: target tile passed but source not
-      calcNumbers[i+1]=i;                                  //  apply negative offset (i) to shift tiles left
+    }
+  } else {
+    for (let i = 0; i < Object.keys(calcNumbers).length; i += 1) {
+      if ((i+1) == parseInt(sourceTile.slice(-1))) {         // CLAUSE 1: Source tile
+        calcNumbers[i+1]=(parseInt(targetTile.slice(-1)));   // Target tile is always source tile integer
+      } else if ((i+1) == parseInt(targetTile.slice(-1))) {  // CLAUSE 2: Target tile
+        calcNumbers[i+1]=(parseInt(sourceTile.slice(-1)));   // Source tile is always target tile integer
+      } else {                                               // CLAUSE 3: Neither source nor target passed OR both have passed:
+        calcNumbers[i+1]=i+1;                                //  pass tile through unchanged
+      }
     }
   }
-  document.querySelector('#funcLabel').innerHTML='reorder tiles 30'
+
   for (let i = 0; i < tiles.children.length; i += 1) {
     tempTiles.push(tiles.children[calcNumbers[i+1]-1]);
   }
@@ -125,7 +144,6 @@ function reorderTiles(sourceTile, targetTile) {
     tempTiles[i].innerHTML = tempTiles[i].innerHTML.replace(tileRegex, "tile"+(i+1));
     tiles.appendChild(tempTiles[i]);
   }
-  document.querySelector('#funcLabel').innerHTML='reorder tiles 40'
   addHandlers();
 }
 
@@ -152,22 +170,19 @@ function shuffleTiles() {
 let tileDragSrcEl = null;
 
 function tileDragStart(e) {
-  document.querySelector('#funcLabel').innerHTML='Firing drag start'
   tileDragSrcEl = e.target;
   e
     .dataTransfer
-    .setData('text/plain', e.target.id);
+    .setData('text', e.target.id);
 }
 
 function tileDragOver(e) {
-  document.querySelector('#funcLabel').innerHTML='Firing dragover'
   if (tileDragSrcEl) {
     e.preventDefault();
   }
 }
 
 function tileDrop(e) {
-  document.querySelector('#funcLabel').innerHTML='Firing ondrop'
   if (tileDragSrcEl) {
     e.stopPropagation();
     e.stopImmediatePropagation();
@@ -178,7 +193,6 @@ function tileDrop(e) {
         .getData('text');
       let sourceTile = document.getElementById(id);
       let targetTile = e.target;
-      document.querySelector('#funcLabel').innerHTML='Firing reorder tiles'
       reorderTiles(sourceTile.id, targetTile.id)
     }
   }
@@ -191,7 +205,6 @@ function tileDragEnd(e) {
 function updatePage() {
   location.reload();
 }
-
 
 function getParameterByName(name, url) {
     if (!url) url = window.location.href;
@@ -218,46 +231,6 @@ fetchAsync()
       }
     )
     .catch(reason => console.log(reason.message))
-
-var cols = document.querySelectorAll('#columns .column');
-[].forEach.call(cols, function (col) {
-    col.addEventListener('dragstart', handleDragStart, false);
-    col.addEventListener('dragover', handleDragOver, false);
-    col.addEventListener('drop', handleDrop, false);
-    col.addEventListener('dragend', handleDragEnd, false);
-});
-
-let dragSrcEl = null;
-
-function handleDragStart(e) {
-  dragSrcEl = e.target;
-  e
-    .dataTransfer
-    .setData('text', dragSrcEl.innerHTML);
-}
-
-function handleDragOver(e) {
-  if (dragSrcEl) {
-    e.preventDefault();
-  }
-}
-
-function handleDrop(e) {
-  if (dragSrcEl) {
-    e.stopPropagation();
-    e.stopImmediatePropagation();
-    e.preventDefault();
-    dragSrcEl.innerHTML = e.target.innerHTML;
-    if (dragSrcEl != this) {
-      dragSrcEl.innerHTML = e.target.innerHTML;
-      this.innerHTML = e.dataTransfer.getData('text');
-    }
-  }
-}
-
-function handleDragEnd(e) {
-  dragSrcEl = null;
-}
 
 function addHandlers() {
   let tileImages = document.querySelectorAll('#rack .tile');
